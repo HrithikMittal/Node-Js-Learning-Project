@@ -1,0 +1,22 @@
+{
+  "name": "nodekb",
+  "version": "1.0.0",
+  "description": "simple knowledge base app",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HrithikMittal/Node-Js.git"
+  },
+  "author": "Adhikansh Mittal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HrithikMittal/Node-Js/issues"
+  },
+  "homepage": "https://github.com/HrithikMittal/Node-Js#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
