@@ -3,6 +3,9 @@ var path = require("path");
 var mongoose = require("mongoose");
 const app = express();
 var bodyParser = require('body-parser');
+var expressValidator = require('express-validator');
+var flash = require('connect-flash');
+var session = require('express-session');
 
 port = process.env.PORT || 3000;
 
@@ -35,6 +38,41 @@ app.use(bodyParser.json());
 
 //Set public folder
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Express Session MiddleWare
+app.use(session({
+    secret: 'Keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        secure: true
+    }
+}));
+
+// Expres Messages Middleware
+app.use(require('connect-flash')());
+app.use(function (req, res, next) {
+    res.locals.messages = require('express-messages')(res, res);
+});
+
+//Express Validator MiddleWare
+app.use(expressValidator({
+    errorFormatter: function (param, msg, value) {
+        var namespace = param.split('.'),
+            root = namespace.shift(),
+            formParam = root;
+
+        while (namespace.length) {
+            formParam += '[' + namespace.shift() + ']';
+        }
+        return {
+            param: formParam,
+            msg: msg,
+            value: value
+        };
+    }
+}));
+
 
 //Home route
 app.get("/", (req, res) => {
@@ -123,6 +161,18 @@ app.post('/articles/edit/:id', (req, res) => {
         }
     });
 })
+
+app.delete('/article/:id', function (req, res) {
+    let query = {
+        _id: req.params.id
+    };
+    Article.remove(query, function (err) {
+        if (err) {
+            console.log(err);
+        }
+        res.send('Success');
+    });
+});
 
 //Start Server
 app.listen(port, (req, res) => {
