@@ -1,7 +1,7 @@
 var express = require("express");
 var path = require("path");
 var mongoose = require("mongoose");
-const app = express();
+var app = express();
 var bodyParser = require('body-parser');
 var expressValidator = require('express-validator');
 var flash = require('connect-flash');
@@ -42,17 +42,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Express Session MiddleWare
 app.use(session({
     secret: 'Keyboard cat',
-    resave: false,
+    resave: true,
     saveUninitialized: true,
-    cookie: {
-        secure: true
-    }
 }));
 
 // Expres Messages Middleware
 app.use(require('connect-flash')());
 app.use(function (req, res, next) {
-    res.locals.messages = require('express-messages')(res, res);
+    res.locals.messages = require('express-messages')(req, res);
+    next();
 });
 
 //Express Validator MiddleWare
@@ -110,20 +108,35 @@ app.get("/articles/add", (req, res) => {
 
 //Add articles/add
 app.post('/articles/add', (req, res) => {
-    let article = new Article();
-    article.title = req.body.title;
-    article.author = req.body.author;
-    article.body = req.body.body;
-    console.log(article);
-    Article.insertMany(article, (err) => {
-        if (err) {
-            console.log(err);
-            return;
-        } else {
-            console.log('Insert Succesfully');
-            res.redirect('/');
-        }
-    });
+    req.checkBody('title', 'Title is required').notEmpty();
+    req.checkBody('author', 'Author is required').notEmpty();
+    req.checkBody('body', 'body is required').notEmpty();
+
+    let errors = req.validationErrors();
+
+    if (errors) {
+        res.render('add_article', {
+            title: 'Add Article',
+            errors: errors
+        });
+    } else {
+        let article = new Article();
+        article.title = req.body.title;
+        article.author = req.body.author;
+        article.body = req.body.body;
+        console.log(article);
+        Article.insertMany(article, (err) => {
+            if (err) {
+                console.log(err);
+                return;
+            } else {
+                console.log('Insert Succesfully');
+                req.flash('success', 'Article Added');
+                res.redirect('/');
+            }
+        });
+    }
+
 });
 
 //Load edit Form
@@ -157,6 +170,7 @@ app.post('/articles/edit/:id', (req, res) => {
             return;
         } else {
             console.log('Update Succesfully');
+            req.flash('success', 'Article Updated');
             res.redirect('/');
         }
     });
