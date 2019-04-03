@@ -50,6 +50,19 @@ app.get("/", (req, res) => {
     });
 });
 
+//Get Single Article
+app.get('/article/:id', function (req, res) {
+    Article.findById(req.params.id, function (err, article) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.render('article', {
+                article: article
+            });
+        }
+    });
+});
+
 //Add route
 app.get("/articles/add", (req, res) => {
     res.render("add_article", {
@@ -57,13 +70,14 @@ app.get("/articles/add", (req, res) => {
     });
 });
 
+//Add articles/add
 app.post('/articles/add', (req, res) => {
-    let article = new Article;
+    let article = new Article();
     article.title = req.body.title;
     article.author = req.body.author;
     article.body = req.body.body;
     console.log(article);
-    Article.save(article, (err) => {
+    Article.insertMany(article, (err) => {
         if (err) {
             console.log(err);
             return;
