@@ -86,8 +86,43 @@ app.post('/articles/add', (req, res) => {
             res.redirect('/');
         }
     });
-})
+});
 
+//Load edit Form
+app.get('/article/edit/:id', function (req, res) {
+    Article.findById(req.params.id, function (err, article) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.render('edit_article', {
+                title: 'Edit Article',
+                article: article
+            });
+        }
+    });
+});
+
+//Update submit articles/add
+app.post('/articles/edit/:id', (req, res) => {
+    let article = {};
+    article.title = req.body.title;
+    article.author = req.body.author;
+    article.body = req.body.body;
+    console.log(article);
+    let query = {
+        _id: req.params.id
+    };
+
+    Article.update(query, article, (err) => {
+        if (err) {
+            console.log(err);
+            return;
+        } else {
+            console.log('Update Succesfully');
+            res.redirect('/');
+        }
+    });
+})
 
 //Start Server
 app.listen(port, (req, res) => {
