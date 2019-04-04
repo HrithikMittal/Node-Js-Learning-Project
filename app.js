@@ -6,10 +6,12 @@ var bodyParser = require('body-parser');
 var expressValidator = require('express-validator');
 var flash = require('connect-flash');
 var session = require('express-session');
+var config = require('./config/database');
+var passport = require('passport');
 
 port = process.env.PORT || 3000;
 
-mongoose.connect("mongodb://localhost/nodekb");
+mongoose.connect(config.database);
 let db = mongoose.connection;
 
 //Check connection
@@ -18,8 +20,8 @@ db.once('open', () => {
 });
 
 //Check for DB errors
-db.on('error', (req, res) => {
-    console.log(err);
+db.on('error', (err) => {
+    console.log('error is' + err);
 });
 
 // Briing in Models
@@ -71,6 +73,16 @@ app.use(expressValidator({
     }
 }));
 
+//Passport config
+require('./config/passport')(passport);
+//Passport Middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get('*', function (req, res, next) {
+    res.locals.user = req.user || null;
+    next();
+});
 
 //Home route
 app.get("/", (req, res) => {
