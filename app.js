@@ -9,7 +9,7 @@ var session = require('express-session');
 var config = require('./config/database');
 var passport = require('passport');
 
-port = process.env.PORT || 3000;
+port = process.env.PORT || 3030;
 
 mongoose.connect(config.database);
 let db = mongoose.connection;
